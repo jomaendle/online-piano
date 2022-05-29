@@ -1,0 +1,29 @@
+.piano {
+  display: flex;
+
+  .key {
+    height: calc(var(--width) * 4);
+    width: var(--width);
+  }
+
+  .white {
+    --width: 100px;
+    background-color: white;
+    border: solid 1px #333;
+
+    &.active {
+      background-color: #e2e2e2;
+    }
+  }
+
+  .black {
+    --width: 60px;
+    background-color: black;
+    margin-inline: calc(var(--width) / -2);
+    z-index: 2;
+
+    &.active {
+      background-color: #333;
+    }
+  }
+}

@@ -1,0 +1,15 @@
+<div class="piano">
+  <ng-container *ngFor="let key of keys; let index = index">
+    <div
+      class="key"
+      [ngClass]="key.isWhite ? 'white' : 'black'"
+      (click)="onKeyClick(index)"
+    >
+      <audio
+        #audio
+        [id]="key.tune"
+        src="assets/notes/{{ key.tune }}.mp3"
+      ></audio>
+    </div>
+  </ng-container>
+</div>
