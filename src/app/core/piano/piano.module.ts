@@ -1,12 +1,11 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { PianoComponent } from './piano.component';
-
+import { NgModule } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { PianoComponent } from "./piano.component";
 
 
 @NgModule({
     declarations: [
-        PianoComponent
+        PianoComponent,
     ],
     exports: [
         PianoComponent

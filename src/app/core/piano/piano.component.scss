@@ -1,9 +1,18 @@
+:host {
+  padding-inline: var(--padding);
+}
+
 .piano {
   display: flex;
 
   .key {
     height: calc(var(--width) * 4);
     width: var(--width);
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    padding-bottom: 1rem;
+    text-transform: uppercase;
   }
 
   .white {
@@ -21,6 +30,7 @@
     background-color: black;
     margin-inline: calc(var(--width) / -2);
     z-index: 2;
+    color: white;
 
     &.active {
       background-color: #333;

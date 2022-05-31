@@ -10,6 +10,10 @@
         [id]="key.tune + (key.isWhite ? '-white' : '-black')"
         src="assets/notes/{{ key.tune }}.mp3"
       ></audio>
+      <span>
+        {{key.key}}
+      </span>
     </div>
   </ng-container>
 </div>
+

@@ -1,0 +1,19 @@
+:host {
+  display: grid;
+  grid-template-areas: "header" "piano" "footer";
+  grid-template-rows: 70px 1fr 40px;
+  gap: 2rem;
+  height: 100%;
+}
+
+app-header {
+  grid-area: header;
+}
+
+app-piano {
+  grid-area: piano;
+}
+
+app-footer {
+  grid-area: footer;
+}

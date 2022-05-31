@@ -11,6 +11,7 @@ import { asyncScheduler, filter, fromEvent, map, Observable, throttleTime } from
 export interface PianoKey {
   tune: string;
   isWhite: boolean;
+  key: string;
 }
 
 
@@ -28,18 +29,18 @@ export class PianoComponent implements OnInit, AfterViewInit {
     | undefined;
 
   keys: PianoKey[] = [
-    { tune: 'C', isWhite: true },
-    { tune: 'Db', isWhite: false },
-    { tune: 'D', isWhite: true },
-    { tune: 'E', isWhite: false },
-    { tune: 'Eb', isWhite: true },
-    { tune: 'F', isWhite: true },
-    { tune: 'Gb', isWhite: false },
-    { tune: 'G', isWhite: true },
-    { tune: 'Ab', isWhite: false },
-    { tune: 'A', isWhite: true },
-    { tune: 'Bb', isWhite: false },
-    { tune: 'B', isWhite: true },
+    { tune: 'C', isWhite: true, key: 'y'},
+    { tune: 'Db', isWhite: false, key: 's' },
+    { tune: 'D', isWhite: true, key: 'x' },
+    { tune: 'E', isWhite: false, key: 'd' },
+    { tune: 'Eb', isWhite: true, key: 'c' },
+    { tune: 'F', isWhite: true, key: 'v' },
+    { tune: 'Gb', isWhite: false, key: 'g' },
+    { tune: 'G', isWhite: true, key: 'b' },
+    { tune: 'Ab', isWhite: false, key: 'h' },
+    { tune: 'A', isWhite: true, key: 'n' },
+    { tune: 'Bb', isWhite: false, key: 'j' },
+    { tune: 'B', isWhite: true, key: 'm' },
   ];
 
   _blackKeys: HTMLAudioElement[] | undefined = [];
