@@ -13,6 +13,10 @@
     align-items: flex-end;
     padding-bottom: 1rem;
     text-transform: uppercase;
+
+    &:hover {
+      cursor: pointer;
+    }
   }
 
   .white {
