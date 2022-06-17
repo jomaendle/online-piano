@@ -7,6 +7,7 @@ import {
   ViewChildren
 } from "@angular/core";
 import { asyncScheduler, filter, fromEvent, map, Observable, throttleTime } from "rxjs";
+import { SynthService } from "../synth.service";
 
 export interface PianoKey {
   tune: string;
@@ -46,7 +47,8 @@ export class PianoComponent implements OnInit, AfterViewInit {
   _blackKeys: HTMLAudioElement[] | undefined = [];
   _whiteKeys: HTMLAudioElement[] | undefined = [];
 
-  constructor() {
+  constructor(private _synthService: SynthService) {
+
     fromEvent<KeyboardEvent>(document, 'keydown').pipe(
       filter((event: KeyboardEvent) => !event.repeat),
       map((event: KeyboardEvent) => event.key)
@@ -59,7 +61,7 @@ export class PianoComponent implements OnInit, AfterViewInit {
         const key: PianoKey | undefined = this.keys.find(i => i.tune === this._whiteKeys[whiteKeyIndex].id.split('-')[0]);
         if (key) {
           const index = this.keys.indexOf(key);
-          this.onKeyClick(index);
+          this.playSound(this.keys[index]);
         }
       }
 
@@ -68,7 +70,7 @@ export class PianoComponent implements OnInit, AfterViewInit {
         const key: PianoKey | undefined = this.keys.find(i => i.tune === this._blackKeys[blackKeyIndex].id.split('-')[0]);
         if (key) {
           const index = this.keys.indexOf(key);
-          this.onKeyClick(index);
+          this.playSound(this.keys[index]);
         }
       }
 
@@ -84,18 +86,8 @@ export class PianoComponent implements OnInit, AfterViewInit {
     this._whiteKeys = (mappedAudios ?? []).filter((audio: HTMLAudioElement) => audio.id.includes('white'))
   }
 
-  onKeyClick(index: number): void {
-    const audio: HTMLAudioElement | undefined =
-      this.audios?.get(index)?.nativeElement;
-
-    if (audio) {
-      audio.parentElement?.classList.add('active');
-      audio.currentTime = 0;
-      audio.play();
-
-      audio.addEventListener('ended', () => {
-        audio.parentElement?.classList.remove('active');
-      });
-    }
+  playSound(key: PianoKey): void {
+    this._synthService.playSound(key.tune)
   }
+
 }
