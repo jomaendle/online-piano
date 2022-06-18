@@ -1,6 +1,7 @@
 import { NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { PianoComponent } from "./piano.component";
+import { ReactiveFormsModule } from "@angular/forms";
 
 
 @NgModule({
@@ -10,8 +11,9 @@ import { PianoComponent } from "./piano.component";
     exports: [
         PianoComponent
     ],
-    imports: [
-        CommonModule
-    ]
+  imports: [
+    CommonModule,
+    ReactiveFormsModule
+  ]
 })
 export class PianoModule { }

@@ -2,14 +2,10 @@
   <ng-container *ngFor="let key of keys">
     <div
       class="key"
+      [class.active]="isActiveKey(key)"
       [ngClass]="key.isWhite ? 'white' : 'black'"
       (click)="playSound(key)"
     >
-      <audio
-        #audio
-        [id]="key.tune + (key.isWhite ? '-white' : '-black')"
-        src="assets/notes/{{ key.tune }}.mp3"
-      ></audio>
       <span>
         {{key.key}}
       </span>
@@ -17,5 +13,22 @@
   </ng-container>
 </div>
 
+<div class="piano-settings" [formGroup]="settingsForm">
+  <input type="number" class="level-input" formControlName="levelForm" min="1" value="4" max="7"/>
+  <div class="buttons">
+    <button class="level-button" [class.active]="levelUpButtonClicked" (click)="increaseLevel()">
+      <span><</span>
+      <span>Q</span>
+    </button>
+    <button class="level-button" [class.active]="levelDownButtonClicked" (click)="decreaseLevel()">
+      <span>></span>
+      <span>W</span>
+    </button>
+  </div>
+
+  <button (click)="loopSound()">Loop</button>
+  <button (click)="stopLoop()">Stop Loop</button>
+
+</div>
 
 

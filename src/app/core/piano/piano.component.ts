@@ -1,13 +1,14 @@
 import {
-  AfterViewInit,
+  AfterViewInit, ChangeDetectorRef,
   Component,
-  ElementRef,
+  ElementRef, OnDestroy,
   OnInit,
   QueryList,
   ViewChildren
 } from "@angular/core";
-import { asyncScheduler, filter, fromEvent, map, Observable, throttleTime } from "rxjs";
+import { asyncScheduler, filter, fromEvent, map, Observable, Subject, takeUntil, throttleTime } from "rxjs";
 import { SynthService } from "../synth.service";
+import { AbstractControl, FormControl, FormGroup, Validators } from "@angular/forms";
 
 export interface PianoKey {
   tune: string;
@@ -15,16 +16,12 @@ export interface PianoKey {
   key: string;
 }
 
-
-const WHITE_KEYS: string[] = ['y', 'x', 'c', 'v', 'b', 'n', 'm'];
-const BLACK_KEYS: string[] = ['s', 'd', 'g', 'h', 'j'];
-
 @Component({
   selector: 'app-piano',
   templateUrl: './piano.component.html',
   styleUrls: ['./piano.component.scss'],
 })
-export class PianoComponent implements OnInit, AfterViewInit {
+export class PianoComponent implements OnInit, OnDestroy {
   @ViewChildren('audio') audios:
     | QueryList<ElementRef<HTMLAudioElement>>
     | undefined;
@@ -44,50 +41,87 @@ export class PianoComponent implements OnInit, AfterViewInit {
     { tune: 'B', isWhite: true, key: 'm' },
   ];
 
-  _blackKeys: HTMLAudioElement[] | undefined = [];
-  _whiteKeys: HTMLAudioElement[] | undefined = [];
+  settingsForm: FormGroup = new FormGroup(
+    { levelForm: new FormControl(4, [Validators.required, Validators.min(1), Validators.max(7)]) }
+  );
 
-  constructor(private _synthService: SynthService) {
+  get levelForm(): AbstractControl | null {
+    return this.settingsForm.get('levelForm');
+  }
+
+  levelUpButtonClicked: boolean = false;
+  levelDownButtonClicked: boolean = false;
+
+  private _destroy$: Subject<void> = new Subject<void>();
+  private _activeKeyMap: Map<string, boolean> = new Map<string, boolean>();
+  private _level: number = 4;
+  private _duration: number = 4;
+
+  constructor(private _synthService: SynthService, private _cdr: ChangeDetectorRef) {
+
+    this.levelForm?.valueChanges.pipe(takeUntil(this._destroy$)).subscribe((level: number) => this._level = level)
 
     fromEvent<KeyboardEvent>(document, 'keydown').pipe(
       filter((event: KeyboardEvent) => !event.repeat),
       map((event: KeyboardEvent) => event.key)
-    ).subscribe((key: string) => {
-      const whiteKeyIndex: number = WHITE_KEYS.indexOf(key);
-      const blackKeyIndex: number = BLACK_KEYS.indexOf(key);
-
-      if (whiteKeyIndex !== -1) {
-        // @ts-ignore
-        const key: PianoKey | undefined = this.keys.find(i => i.tune === this._whiteKeys[whiteKeyIndex].id.split('-')[0]);
-        if (key) {
-          const index = this.keys.indexOf(key);
-          this.playSound(this.keys[index]);
-        }
+    ).subscribe((keyEvent: string) => {
+      const pianoKey: PianoKey | undefined = this.keys.find((key) => key.key === keyEvent)
+      if (pianoKey) {
+        this.playSound(pianoKey);
       }
 
-      if (blackKeyIndex !== -1) {
-        // @ts-ignore
-        const key: PianoKey | undefined = this.keys.find(i => i.tune === this._blackKeys[blackKeyIndex].id.split('-')[0]);
-        if (key) {
-          const index = this.keys.indexOf(key);
-          this.playSound(this.keys[index]);
-        }
+      if (keyEvent === 'q') {
+        this.levelUpButtonClicked = true;
+        this.increaseLevel();
+        setTimeout(() => this.levelUpButtonClicked = false, 300)
+      } else if (keyEvent === 'w') {
+        this.levelDownButtonClicked = true;
+        this.decreaseLevel();
+        setTimeout(() => this.levelDownButtonClicked = false, 300)
       }
-
     })
   }
 
   ngOnInit(): void {}
 
-  ngAfterViewInit(): void {
-    const mappedAudios: HTMLAudioElement[] | undefined = this.audios?.toArray().map((audio: ElementRef<HTMLAudioElement>) => audio.nativeElement);
-
-    this._blackKeys = (mappedAudios ?? []).filter((audio: HTMLAudioElement) => audio.id.includes('black'))
-    this._whiteKeys = (mappedAudios ?? []).filter((audio: HTMLAudioElement) => audio.id.includes('white'))
+  ngOnDestroy(): void {
+      this._destroy$.next();
+      this._destroy$.complete();
   }
 
-  playSound(key: PianoKey): void {
-    this._synthService.playSound(key.tune)
+  playSound({ key, tune }: PianoKey): void {
+    const callback = () => {
+      this._activeKeyMap.set(key, false);
+    };
+
+    this._activeKeyMap.set(key, true)
+    this._synthService.playSound({ key: tune, level: this._level, duration: this._duration }, callback)
+  }
+
+  isActiveKey({ key }: PianoKey) {
+   return this._activeKeyMap.has(key) && this._activeKeyMap.get(key) === true;
+  }
+
+  increaseLevel(): void {
+    if (this._level < 7) {
+      this._level = this._level + 1;
+      this.levelForm?.setValue(this._level);
+    }
+  }
+
+  decreaseLevel(): void {
+    if (this._level > 0) {
+      this._level = this._level - 1
+      this.levelForm?.setValue(this._level);
+    }
+  }
+
+  loopSound(): void {
+    this._synthService.loopSound();
+  }
+
+  stopLoop(): void {
+    this._synthService.stopLoop();
   }
 
 }
